@@ -1,31 +1,31 @@
-pipeline {
-    agent any 
+pipeline{
+    agent any
     stages{
-        stage("cloneCode"){
-            steps {
-                 echo "Cloning the code"
-                 git url:"https://github.com/shoaibkalmani1/django-notes-app.git", branch: "main"
+        stage("cloning"){
+            steps{
+                echo "cloning the clone"
+                git url:"https://github.com/shoaibkalmani1/django-notes-app.git", branch: "main"
             }
         }
         stage("Build"){
-            steps {
-                echo "building the code"
-                sh "docker build -t mynode-app ."
+            steps{
+                echo "Building the code"
+                sh "docker build -t image ."
             }
         }
-        stage("Push  to Docker Hub"){
-            steps {
-                echo "pushing the image to docker hub"
-                withCredentials([usernamePassword(credentialsId:"dockerhub", passwordVariable:"dockerhubPass", usernameVariable:"dockerhubUser")]){
-                sh "docker tag mynode-app ${env.dockerhubUser}/mynode-app:latest"    
-                sh "docker login -u ${env.dockerhubUser} -p ${env.dockerhubPass}"
-                sh "docker push ${env.dockerhubUser}/mynode-app:latest"
+        stage("pushing to dockerHub"){
+            steps{
+                echo "pushing the code to dockerHub"
+                withCredentials([usernamePassword(credentialsId:"dockerHub",passwordVariable:"dockerHubPass", usernameVariable:"dockerHubUser")]){
+                sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPass}" 
+                sh "docker tag image ${env.dockerHubUser}/newimage:latest"
+                sh "docker push ${env.dockerHubUser}/newimage:latest"
                 }
             }
         }
-        stage("Deploy"){
-            steps {
-                echo "Deploying the conatiner"
+        stage("Deployment"){
+            steps{
+                echo "Deploying the code"
                 sh "docker-compose down && docker-compose up -d"
             }
         }
